@@ -1,0 +1,72 @@
+org: joseeneas
+app: api-game-score
+service: api-game-score
+frameworkVersion: '3'
+
+params:
+  default:
+    dbName: alura-serverless
+  dev:
+    connectionString: mongodb://localhost:27017/${self:params.default.dbName}
+    jwtSecret: UkBN0me9JRvODL8Olb9iszmWxuOYt74OJEeTfFtiajbTScOGL6iFcMjepagitemzj4DqbHtKV6JokQpdZg8u96EHRUklWoQV3HjSm2PlQdC8hekOlSUWZPTjcMn8DvHdFwkkG7FC63N9yRnHQwAPNuNXNWZfoXlZZNbwirr2t7LLUV5rw9uE8CBEghVQt1KWH9284t5RxmVBtDpSSOs3rITMj6Sh8L9m2tu0KwGszdH45Scl2rce4RIS9Qr8fYS3
+    jwtAudience: api-serverless
+
+  prod:  
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: 'us-east-1'
+  deploymentBucket:
+    skipPolicySetup: true
+  environment:
+    MONGODB_CONNECTIONSTRING: ${param:connectionString}
+    MONGODB_DB_NAME: ${param:dbName}
+    JWT_SECRET: ${param:jwtSecret}
+    JWT_AUDIENCE : ${param:jwtAudience}
+
+functions:
+  createUser:
+    handler: api/user/users.createUser
+    events:
+      - httpApi:
+          path: /users/create
+          method: post
+
+  getUsers:
+    handler: api/user/users.getById
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: get        
+
+  getAllUsers:
+    handler: api/user/users.getAll
+    events:
+      - httpApi:
+          path: /users
+          method: get    
+
+  updateUser:
+    handler: api/user/users.update         
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: put    
+
+  deleteUser:
+    handler: api/user/users.remove         
+    events:
+      - httpApi:
+          path: /users/delete/{id}
+          method: delete           
+
+  login:
+    handler: api/auth/auth.login
+    events:
+      - httpApi:
+          path: /login
+          method: post           
+          requests:
+plugins:
+  - serverless-offline
